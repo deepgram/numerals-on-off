@@ -63,6 +63,11 @@ async def run(key):
                 while True:
                     data = await audio_queue.get()
                     await ws.send(data)
+
+            # catch normal closure
+            except websockets.exceptions.ConnectionClosedOK:
+                return
+
             except Exception as e:
                 print('Error while sending: ', + string(e))
                 raise
