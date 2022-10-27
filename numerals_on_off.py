@@ -16,7 +16,6 @@ import pyaudio
 import asyncio
 import sys
 import websockets
-import os
 import json
 import shutil
 import argparse
@@ -81,7 +80,15 @@ async def run(key):
                     
                     if msg['is_final'] and len(latest_transcript) > 0:
                         print(latest_transcript)
-                        
+
+                    if latest_transcript == "goodbye":
+                        print("👋 Closing DG connection...")
+                        await ws.send(json.dumps({                                                   
+                            "type": "CloseStream"                             
+                        }))
+                        print("🟢 Connection successfully closed.")
+                        return
+
                     if "turn on numerals" in latest_transcript or "turn numerals on" in latest_transcript:
                         print("ℹ️ Turning on numerals")
                         await ws.send(json.dumps({
@@ -100,15 +107,16 @@ async def run(key):
                                 }
                             }))
 
-
             except Exception as e:
                 print(e)
+            
 
         await asyncio.wait([
             asyncio.ensure_future(microphone()),
             asyncio.ensure_future(sender(ws)),
             asyncio.ensure_future(receiver(ws))
-        ])
+        ], return_when=asyncio.FIRST_COMPLETED)
+
 
 def parse_args():
     """ Parses the command-line arguments.
