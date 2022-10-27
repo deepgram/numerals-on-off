@@ -38,7 +38,7 @@ async def run(key):
     extra_headers = {
         'Authorization': f'token {key}'
     }
-    async with websockets.connect('wss://api.deepgram.com/v1/listen?interim_results=true&encoding=linear16&sample_rate=16000&channels=1', extra_headers = extra_headers) as ws:
+    async with websockets.connect('wss://api.deepgram.com/v1/listen?encoding=linear16&sample_rate=16000&channels=1', extra_headers = extra_headers) as ws:
         async def microphone():
             audio = pyaudio.PyAudio()
             stream = audio.open(
@@ -59,6 +59,7 @@ async def run(key):
             stream.close()
 
         async def sender(ws):
+            print("🟢 DG connection opened")
             try:
                 while True:
                     data = await audio_queue.get()
@@ -77,8 +78,11 @@ async def run(key):
                     
                     else:
                         latest_transcript = msg.get('channel', {}).get('alternatives', [{}])[0].get('transcript')
-
-                    if ("turn on numerals" or "turn numerals on") in latest_transcript:
+                    
+                    if msg['is_final'] and len(latest_transcript) > 0:
+                        print(latest_transcript)
+                        
+                    if "turn on numerals" in latest_transcript or "turn numerals on" in latest_transcript:
                         print("ℹ️ Turning on numerals")
                         await ws.send(json.dumps({
                             "type": "Configure",
@@ -87,7 +91,7 @@ async def run(key):
                             }
                         }))
 
-                    elif ("turn off numerals" or "turn numerals off") in latest_transcript:
+                    elif "turn off numerals" in latest_transcript or "turn numerals off" in latest_transcript:
                         print("ℹ️ Turning off numerals")
                         await ws.send(json.dumps({
                                 "type": "Configure",
@@ -96,8 +100,6 @@ async def run(key):
                                 }
                             }))
 
-                    elif msg['is_final'] and len(latest_transcript) > 0:
-                            print(latest_transcript)
 
             except Exception as e:
                 print(e)
