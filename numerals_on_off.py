@@ -89,7 +89,7 @@ async def run(key):
                         print("🟢 Connection successfully closed.")
                         return
 
-                    if "turn on numerals" in latest_transcript or "turn numerals on" in latest_transcript:
+                    if "turn on numerals" in latest_transcript or "numerals on" in latest_transcript:
                         print("ℹ️ Turning on numerals")
                         await ws.send(json.dumps({
                             "type": "Configure",
@@ -98,7 +98,7 @@ async def run(key):
                             }
                         }))
 
-                    elif "turn off numerals" in latest_transcript or "turn numerals off" in latest_transcript:
+                    elif "turn off numerals" in latest_transcript or "numerals off" in latest_transcript:
                         print("ℹ️ Turning off numerals")
                         await ws.send(json.dumps({
                                 "type": "Configure",
