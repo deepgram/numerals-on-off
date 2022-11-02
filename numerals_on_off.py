@@ -98,7 +98,7 @@ async def run(key):
                         print("ℹ️ Turning on numerals")
                         await ws.send(json.dumps({
                             "type": "Configure",
-                            "processors": {
+                            "features": {
                                 "numerals": True
                             }
                         }))
@@ -107,7 +107,7 @@ async def run(key):
                         print("ℹ️ Turning off numerals")
                         await ws.send(json.dumps({
                                 "type": "Configure",
-                                "processors": {
+                                "features": {
                                     "numerals": False
                                 }
                             }))
